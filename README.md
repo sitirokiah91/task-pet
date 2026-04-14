@@ -75,11 +75,11 @@ You are not starting from nothing.
 - [x] Initial desktop GUI window
 - [x] Working Python environment
 - [x] First clickable prototype
-- [ ] Add task input
-- [ ] Task list
-- [ ] Timer presets
-- [ ] Start round logic
-- [ ] Countdown timer
+- [x] Add task input
+- [x] Task list
+- [x] Timer presets
+- [x] Start round logic
+- [x] Countdown timer
 - [ ] Growth states (seed → sprout → adult)
 - [ ] Garden view
 - [ ] Save/load data
@@ -128,5 +128,3 @@ python src/task_pet/main.py
 
 Built by Siti Rokiah (Rora)
 QA → Developer → AI Engineer journey in progress.
-
-```text
