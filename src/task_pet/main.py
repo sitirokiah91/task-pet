@@ -4,10 +4,10 @@ tasks = []
 selected_minutes = 5
 
 ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("blue")
+ctk.set_default_color_theme("pink")
 
 app = ctk.CTk()
-app.title("Task Pet")
+app.title("Task Pet Plant")
 app.geometry("500x650")
 
 
@@ -17,6 +17,7 @@ def add_task():
         tasks.append(task)
         task_entry.delete(0, "end")
         refresh_task_list()
+        update_start_button()
 
 
 def refresh_task_list():
@@ -33,17 +34,27 @@ def set_timer(minutes):
     selected_minutes = minutes
     timer_label.configure(text=f"Selected timer: {selected_minutes} minutes")
 
+def click_button():
+    status.configure(
+        text=f"Round started: {selected_minutes} minutes"
+    )
+
+def update_start_button():
+    if tasks:
+        start_button.configure(state="normal")
+    else:
+        start_button.configure(state="disabled")
 
 title = ctk.CTkLabel(
     app,
-    text="🐾 Task Pet",
+    text="🐾 Task Pet Plant",
     font=("Arial", 28, "bold")
 )
 title.pack(pady=30)
 
 status = ctk.CTkLabel(
     app,
-    text="Your pet is waiting for tasks...",
+    text="Your pet plant is waiting for tasks...",
     font=("Arial", 16)
 )
 status.pack(pady=10)
@@ -97,5 +108,13 @@ timer_25_button = ctk.CTkButton(
     command=lambda: set_timer(25)
 )
 timer_25_button.pack(pady=5)
+
+start_button = ctk.CTkButton(
+    app,
+    text="Start Round",
+    command=click_button,
+    state="disabled"
+)
+start_button.pack(pady=15)
 
 app.mainloop()
