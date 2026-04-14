@@ -3,6 +3,7 @@ import customtkinter as ctk
 tasks = []
 selected_minutes = 5
 time_left = 0
+countdown_job = None
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
@@ -42,28 +43,36 @@ def click_button():
     countdown()
 
 def countdown():
-    global time_left
+    global time_left, countdown_job
 
     minutes = time_left // 60
     seconds = time_left % 60
 
-    timer_label.configure(
-        text=f"Time left: {minutes:02}:{seconds:02}"
-    )
+    timer_label.configure(text=f"Time left: {minutes:02}:{seconds:02}")
 
     if time_left > 0:
         time_left -= 1
-        app.after(1000, countdown)
+        countdown_job = app.after(1000, countdown)
     else:
-        status.configure(
-            text="Time is up! Plant returns to seed 🌰"
-        )
+        status.configure(text="Time is up! Plant returns to seed 🌰")
+        countdown_job = None
 
 def update_start_button():
     if tasks:
         start_button.configure(state="normal")
     else:
         start_button.configure(state="disabled")
+
+def restart_round():
+    global time_left, countdown_job
+
+    if countdown_job is not None:
+        app.after_cancel(countdown_job)
+        countdown_job = None
+
+    time_left = selected_minutes * 60
+    timer_label.configure(text=f"Selected timer: {selected_minutes} minutes")
+    status.configure(text="Round reset. Ready to start again.")
 
 title = ctk.CTkLabel(
     app,
@@ -136,5 +145,12 @@ start_button = ctk.CTkButton(
     state="disabled"
 )
 start_button.pack(pady=15)
+
+restart_button = ctk.CTkButton(
+    app,
+    text="Restart Round",
+    command=restart_round
+)
+restart_button.pack(pady=5)
 
 app.mainloop()
