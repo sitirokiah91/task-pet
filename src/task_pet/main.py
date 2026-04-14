@@ -2,9 +2,10 @@ import customtkinter as ctk
 
 tasks = []
 selected_minutes = 5
+time_left = 0
 
 ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("pink")
+ctk.set_default_color_theme("green")
 
 app = ctk.CTk()
 app.title("Task Pet Plant")
@@ -35,9 +36,28 @@ def set_timer(minutes):
     timer_label.configure(text=f"Selected timer: {selected_minutes} minutes")
 
 def click_button():
-    status.configure(
-        text=f"Round started: {selected_minutes} minutes"
+    global time_left
+    time_left = selected_minutes * 60
+    status.configure(text="Round in progress...")
+    countdown()
+
+def countdown():
+    global time_left
+
+    minutes = time_left // 60
+    seconds = time_left % 60
+
+    timer_label.configure(
+        text=f"Time left: {minutes:02}:{seconds:02}"
     )
+
+    if time_left > 0:
+        time_left -= 1
+        app.after(1000, countdown)
+    else:
+        status.configure(
+            text="Time is up! Plant returns to seed 🌰"
+        )
 
 def update_start_button():
     if tasks:
