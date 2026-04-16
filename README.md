@@ -69,7 +69,17 @@ You are not starting from nothing.
 
 ---
 
+
 ## Current Status
+
+### Latest MVP Progress
+The first playable loop is now working:
+- Add tasks
+- Select timer
+- Start round
+- Complete tasks during active round
+- Win when all tasks are completed before time runs out
+- Restart round without retyping tasks
 
 ### MVP In Progress
 - [x] Initial desktop GUI window
@@ -80,6 +90,9 @@ You are not starting from nothing.
 - [x] Timer presets
 - [x] Start round logic
 - [x] Countdown timer
+- [x] Task completion flow
+- [x] Round success state
+- [x] Restart round keeps tasks
 - [ ] Growth states (seed → sprout → adult)
 - [ ] Garden view
 - [ ] Save/load data
@@ -108,19 +121,21 @@ src/task_pet/
 
 ## Run locally
 
+```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python src/task_pet/main.py
+```
 
 ---
 
 ## Future Ideas
-	•	Rare seed types
-	•	Plant personalities
-	•	Seasonal garden themes
-	•	Tap a plant to view the tasks that grew it
-	•	Plant encounters where they boast about their trainers
+- Rare seed types
+- Plant personalities
+- Seasonal garden themes
+- Tap a plant to view the tasks that grew it
+- Plant encounters where they boast about their trainers
 
 ---
 
