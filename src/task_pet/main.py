@@ -8,6 +8,7 @@ round_active = False
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
+ctk.set_default_color_theme("green")
 
 app = ctk.CTk()
 app.title("Task Pet Plant")
@@ -131,6 +132,7 @@ def restart_round():
 title = ctk.CTkLabel(
     app,
     text="🐾 Task Pet Plant",
+    text="🐾 Task Pet Plant",
     font=("Arial", 28, "bold")
 )
 title.pack(pady=30)
@@ -138,10 +140,19 @@ title.pack(pady=30)
 status = ctk.CTkLabel(
     app,
     text="Your pet plant is waiting for tasks...",
+    text="Your pet plant is waiting for tasks...",
     font=("Arial", 16)
 )
 status.pack(pady=10)
 
+task_entry = ctk.CTkEntry(
+    app,
+    width=300,
+    placeholder_text="Enter a task"
+)
+task_entry.pack(pady=10)
+
+add_task_button = ctk.CTkButton(
 task_entry = ctk.CTkEntry(
     app,
     width=300,
