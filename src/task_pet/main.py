@@ -4,6 +4,7 @@ tasks = []
 selected_minutes = 5
 time_left = 0
 countdown_job = None
+round_active = False
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
@@ -16,19 +17,66 @@ app.geometry("500x650")
 def add_task():
     task = task_entry.get().strip()
     if task:
-        tasks.append(task)
+        tasks.append({
+            "name": task,
+            "done": False
+        })
         task_entry.delete(0, "end")
         refresh_task_list()
         update_start_button()
 
 
 def refresh_task_list():
-    if tasks:
-        task_list_label.configure(
-            text="\n".join([f"☐ {task}" for task in tasks])
+    for widget in task_frame.winfo_children():
+        widget.destroy()
+
+    for index, task in enumerate(tasks):
+        row = ctk.CTkFrame(task_frame)
+        row.pack(fill="x", pady=5, padx=5)
+
+        symbol = "✔" if task["done"] else "☐"
+
+        label = ctk.CTkLabel(
+            row,
+            text=f"{symbol} {task['name']}"
         )
-    else:
-        task_list_label.configure(text="No tasks yet.")
+        label.pack(side="left", padx=10)
+
+        if not round_active or task["done"]:
+            state = "disabled"
+        else:
+            state = "normal"
+
+        button = ctk.CTkButton(
+            row,
+            text="Complete",
+            command=lambda idx=index: complete_task(idx),
+            state=state,
+            width=100
+        )
+        button.pack(side="right", padx=10)
+
+def all_tasks_completed():
+    return all(task["done"] for task in tasks)
+
+def handle_round_success():
+    global countdown_job, round_active
+
+    if countdown_job is not None:
+        app.after_cancel(countdown_job)
+        countdown_job = None
+
+    round_active = False
+    status.configure(text="All tasks completed! Your plant grows 🌱")
+    refresh_task_list()
+
+def complete_task(index):
+    if round_active and not tasks[index]["done"]:
+        tasks[index]["done"] = True
+        refresh_task_list()
+
+        if all_tasks_completed():
+            handle_round_success()
 
 
 def set_timer(minutes):
@@ -37,7 +85,10 @@ def set_timer(minutes):
     timer_label.configure(text=f"Selected timer: {selected_minutes} minutes")
 
 def click_button():
-    global time_left
+    global time_left, round_active
+
+    round_active = True
+    refresh_task_list()
     time_left = selected_minutes * 60
     status.configure(text="Round in progress...")
     countdown()
@@ -54,8 +105,9 @@ def countdown():
         time_left -= 1
         countdown_job = app.after(1000, countdown)
     else:
-        status.configure(text="Time is up! Plant returns to seed 🌰")
         countdown_job = None
+        round_active = False
+        status.configure(text="Time is up! Plant returns to seed 🌰")
 
 def update_start_button():
     if tasks:
@@ -64,15 +116,17 @@ def update_start_button():
         start_button.configure(state="disabled")
 
 def restart_round():
-    global time_left, countdown_job
-
+    global time_left, countdown_job, round_active
+    round_active = False
     if countdown_job is not None:
         app.after_cancel(countdown_job)
         countdown_job = None
-
+    for task in tasks:
+            task["done"] = False
     time_left = selected_minutes * 60
     timer_label.configure(text=f"Selected timer: {selected_minutes} minutes")
     status.configure(text="Round reset. Ready to start again.")
+    refresh_task_list()
 
 title = ctk.CTkLabel(
     app,
@@ -102,13 +156,8 @@ add_task_button = ctk.CTkButton(
 )
 add_task_button.pack(pady=10)
 
-task_list_label = ctk.CTkLabel(
-    app,
-    text="No tasks yet.",
-    font=("Arial", 14),
-    justify="left"
-)
-task_list_label.pack(pady=20)
+task_frame = ctk.CTkFrame(app)
+task_frame.pack(pady=20, padx=20, fill="x")
 
 timer_label = ctk.CTkLabel(
     app,
