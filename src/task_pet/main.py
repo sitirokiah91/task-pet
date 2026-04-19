@@ -10,12 +10,17 @@ time_left = 0
 countdown_job = None
 round_active = False
 restart_available = False
+wins = 0
+plant_stage = "seed"
+plant_emoji = "🌰"
+plant_rarity = None
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
 
 app = ctk.CTk()
 app.title("Task Pet Plant")
+app.attributes("-topmost", True)
 app.geometry("500x650")
 
 
@@ -32,6 +37,26 @@ def render_task_list():
     ui.refresh_task_list(task_frame, tasks, round_active, complete_task)
 
 
+def update_plant_growth():
+    global wins, plant_stage, plant_emoji, plant_rarity
+
+    wins += 1
+
+    if wins == pet.SPROUT_AT:
+        plant_stage = "sprout"
+        plant_emoji = "🌱"
+        plant_rarity = None
+    elif wins == pet.GROWN_AT:
+        plant_stage = "grown"
+        plant_emoji = "🌿"
+        plant_rarity = None
+    elif wins == pet.FINAL_AT:
+        plant_stage = "final"
+        plant_emoji, plant_rarity = pet.get_final_plant()
+
+    plant_label.configure(text=plant_emoji)
+
+
 def handle_round_success():
     global countdown_job, round_active, restart_available
 
@@ -41,7 +66,8 @@ def handle_round_success():
 
     round_active = False
     restart_available = True
-    status.configure(text="All tasks completed! Your plant grows 🌱")
+    update_plant_growth()
+    status.configure(text=f"All tasks completed! Your plant grows into {plant_emoji}")
     render_task_list()
     update_action_buttons()
 
@@ -118,7 +144,7 @@ def restart_round():
 
     time_left = selected_minutes * 60
     timer_label.configure(text=f"Selected timer: {selected_minutes} minutes")
-    status.configure(text="Round reset. Ready to start again.")
+    status.configure(text=f"Round reset. {plant_emoji} is ready to keep growing.")
     render_task_list()
     update_action_buttons()
 
@@ -129,6 +155,13 @@ title = ctk.CTkLabel(
     font=("Arial", 28, "bold"),
 )
 title.pack(pady=30)
+
+plant_label = ctk.CTkLabel(
+    app,
+    text=plant_emoji,
+    font=("Arial", 64),
+)
+plant_label.pack(pady=10)
 
 status = ctk.CTkLabel(
     app,
