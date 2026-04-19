@@ -10,6 +10,8 @@ time_left = 0
 countdown_job = None
 round_active = False
 restart_available = False
+
+# Plant growth state
 wins = 0
 plant_stage = "seed"
 plant_emoji = "🌰"
@@ -22,6 +24,19 @@ app = ctk.CTk()
 app.title("Task Pet Plant")
 app.attributes("-topmost", True)
 app.geometry("500x650")
+
+# --- Layout Frames ---
+header_frame = ctk.CTkFrame(app, fg_color="transparent")
+header_frame.pack(fill="x", pady=(20, 10))
+
+input_frame = ctk.CTkFrame(app, fg_color="transparent")
+input_frame.pack(fill="x", padx=20, pady=10)
+
+controls_frame = ctk.CTkFrame(app, fg_color="transparent")
+controls_frame.pack(fill="x", padx=20, pady=10)
+
+timer_buttons_frame = ctk.CTkFrame(controls_frame, fg_color="transparent")
+action_buttons_frame = ctk.CTkFrame(controls_frame, fg_color="transparent")
 
 
 def add_task():
@@ -37,6 +52,7 @@ def render_task_list():
     ui.refresh_task_list(task_frame, tasks, round_active, complete_task)
 
 
+# --- Plant Growth Logic ---
 def update_plant_growth():
     global wins, plant_stage, plant_emoji, plant_rarity
 
@@ -119,7 +135,9 @@ def countdown():
 
 
 def update_action_buttons():
-    if tasks and not round_active:
+    available_tasks = any(not task["done"] for task in tasks)
+
+    if available_tasks and not round_active:
         start_button.configure(state="normal")
     else:
         start_button.configure(state="disabled")
@@ -150,86 +168,89 @@ def restart_round():
 
 
 title = ctk.CTkLabel(
-    app,
+    header_frame,
     text="🐾 Task Pet Plant",
     font=("Arial", 28, "bold"),
 )
-title.pack(pady=30)
+title.pack(pady=(0, 10))
 
 plant_label = ctk.CTkLabel(
-    app,
+    header_frame,
     text=plant_emoji,
     font=("Arial", 64),
 )
-plant_label.pack(pady=10)
+plant_label.pack(pady=(0, 10))
 
 status = ctk.CTkLabel(
-    app,
+    header_frame,
     text="Your pet plant is waiting for tasks...",
     font=("Arial", 16),
 )
-status.pack(pady=10)
+status.pack(pady=(0, 10))
 
 task_entry = ctk.CTkEntry(
-    app,
+    input_frame,
     width=300,
     placeholder_text="Enter a task",
 )
-task_entry.pack(pady=10)
+task_entry.pack(side="left", fill="x", expand=True, padx=(0, 10))
 
 add_task_button = ctk.CTkButton(
-    app,
+    input_frame,
     text="Add Task",
     command=add_task,
 )
-add_task_button.pack(pady=10)
+add_task_button.pack(side="right")
 
 task_frame = ctk.CTkFrame(app)
-task_frame.pack(pady=20, padx=20, fill="x")
+task_frame.pack(pady=15, padx=20, fill="both", expand=True)
 
 timer_label = ctk.CTkLabel(
-    app,
+    controls_frame,
     text=f"Selected timer: {selected_minutes} minutes",
     font=("Arial", 14),
 )
-timer_label.pack(pady=10)
+timer_label.pack(pady=(0, 10))
 
 timer_5_button = ctk.CTkButton(
-    app,
+    timer_buttons_frame,
     text="5 Mins",
     command=lambda: set_timer(5),
 )
-timer_5_button.pack(pady=5)
+timer_5_button.pack(side="left", padx=5)
 
 timer_10_button = ctk.CTkButton(
-    app,
+    timer_buttons_frame,
     text="10 Mins",
     command=lambda: set_timer(10),
 )
-timer_10_button.pack(pady=5)
+timer_10_button.pack(side="left", padx=5)
 
 timer_25_button = ctk.CTkButton(
-    app,
+    timer_buttons_frame,
     text="25 Mins",
     command=lambda: set_timer(25),
 )
-timer_25_button.pack(pady=5)
+timer_25_button.pack(side="left", padx=5)
+
+timer_buttons_frame.pack(pady=(0, 10))
+action_buttons_frame.pack()
 
 start_button = ctk.CTkButton(
-    app,
+    action_buttons_frame,
     text="Start Round",
     command=click_button,
     state="disabled",
 )
-start_button.pack(pady=15)
+start_button.pack(side="left", padx=5)
 
 restart_button = ctk.CTkButton(
-    app,
+    action_buttons_frame,
     text="Restart Round",
     command=restart_round,
     state="disabled",
 )
-restart_button.pack(pady=5)
+restart_button.pack(side="left", padx=5)
 
 update_action_buttons()
 
