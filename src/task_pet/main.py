@@ -1,11 +1,15 @@
 import customtkinter as ctk
 
+import pet
+import ui
+
 
 tasks = []
 selected_minutes = 5
 time_left = 0
 countdown_job = None
 round_active = False
+restart_available = False
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
@@ -18,73 +22,36 @@ app.geometry("500x650")
 def add_task():
     task = task_entry.get().strip()
     if task:
-        tasks.append({
-            "name": task,
-            "done": False,
-        })
+        tasks.append(pet.create_task(task))
         task_entry.delete(0, "end")
-        refresh_task_list()
-        update_start_button()
+        render_task_list()
+        update_action_buttons()
 
 
-def refresh_task_list():
-    for widget in task_frame.winfo_children():
-        widget.destroy()
-
-    for index, task in enumerate(tasks):
-        row = ctk.CTkFrame(task_frame)
-        row.pack(fill="x", pady=5, padx=5)
-
-        symbol = "✔" if task["done"] else "☐"
-
-        label = ctk.CTkLabel(
-            row,
-            text=f"{symbol} {task['name']}",
-        )
-        label.pack(side="left", padx=10)
-
-        if not round_active or task["done"]:
-            state = "disabled"
-        else:
-            state = "normal"
-
-        button = ctk.CTkButton(
-            row,
-            text="Complete",
-            command=lambda idx=index: complete_task(idx),
-            state=state,
-            width=100,
-        )
-        button.pack(side="right", padx=10)
-
-
-
-def all_tasks_completed():
-    return all(task["done"] for task in tasks)
-
+def render_task_list():
+    ui.refresh_task_list(task_frame, tasks, round_active, complete_task)
 
 
 def handle_round_success():
-    global countdown_job, round_active
+    global countdown_job, round_active, restart_available
 
     if countdown_job is not None:
         app.after_cancel(countdown_job)
         countdown_job = None
 
     round_active = False
+    restart_available = True
     status.configure(text="All tasks completed! Your plant grows 🌱")
-    refresh_task_list()
-
+    render_task_list()
+    update_action_buttons()
 
 
 def complete_task(index):
-    if round_active and not tasks[index]["done"]:
-        tasks[index]["done"] = True
-        refresh_task_list()
+    if round_active and pet.complete_task(tasks, index):
+        render_task_list()
 
-        if all_tasks_completed():
+        if pet.all_tasks_completed(tasks):
             handle_round_success()
-
 
 
 def set_timer(minutes):
@@ -93,20 +60,20 @@ def set_timer(minutes):
     timer_label.configure(text=f"Selected timer: {selected_minutes} minutes")
 
 
-
 def click_button():
-    global time_left, round_active
+    global time_left, round_active, restart_available
 
     round_active = True
-    refresh_task_list()
+    restart_available = True
+    render_task_list()
+    update_action_buttons()
     time_left = selected_minutes * 60
     status.configure(text="Round in progress...")
     countdown()
 
 
-
 def countdown():
-    global time_left, countdown_job, round_active
+    global time_left, countdown_job, round_active, restart_available
 
     minutes = time_left // 60
     seconds = time_left % 60
@@ -119,36 +86,41 @@ def countdown():
     else:
         countdown_job = None
         round_active = False
+        restart_available = True
         status.configure(text="Time is up! Plant returns to seed 🌰")
-        refresh_task_list()
+        render_task_list()
+        update_action_buttons()
 
 
-
-def update_start_button():
-    if tasks:
+def update_action_buttons():
+    if tasks and not round_active:
         start_button.configure(state="normal")
     else:
         start_button.configure(state="disabled")
 
+    if restart_available:
+        restart_button.configure(state="normal")
+    else:
+        restart_button.configure(state="disabled")
 
 
 def restart_round():
-    global time_left, countdown_job, round_active
+    global time_left, countdown_job, round_active, restart_available
 
     round_active = False
+    restart_available = False
 
     if countdown_job is not None:
         app.after_cancel(countdown_job)
         countdown_job = None
 
-    for task in tasks:
-        task["done"] = False
+    pet.reset_tasks(tasks)
 
     time_left = selected_minutes * 60
     timer_label.configure(text=f"Selected timer: {selected_minutes} minutes")
     status.configure(text="Round reset. Ready to start again.")
-    refresh_task_list()
-
+    render_task_list()
+    update_action_buttons()
 
 
 title = ctk.CTkLabel(
@@ -222,7 +194,10 @@ restart_button = ctk.CTkButton(
     app,
     text="Restart Round",
     command=restart_round,
+    state="disabled",
 )
 restart_button.pack(pady=5)
+
+update_action_buttons()
 
 app.mainloop()
