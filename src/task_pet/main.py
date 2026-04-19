@@ -41,15 +41,15 @@ def update_plant_growth():
 
     wins += 1
 
-    if wins == 1:
+    if wins == pet.SPROUT_AT:
         plant_stage = "sprout"
         plant_emoji = "🌱"
         plant_rarity = None
-    elif wins == 2:
+    elif wins == pet.GROWN_AT:
         plant_stage = "grown"
         plant_emoji = "🌿"
         plant_rarity = None
-    elif wins >= 3:
+    elif wins == pet.FINAL_AT:
         plant_stage = "final"
         plant_emoji, plant_rarity = pet.get_final_plant()
 
@@ -143,7 +143,7 @@ def restart_round():
 
     time_left = selected_minutes * 60
     timer_label.configure(text=f"Selected timer: {selected_minutes} minutes")
-    status.configure(text="Round reset. Ready to start again.")
+    status.configure(text=f"Round reset. {plant_emoji} is ready to keep growing.")
     render_task_list()
     update_action_buttons()
 

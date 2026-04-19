@@ -1,5 +1,9 @@
 import random
 
+SPROUT_AT = 1
+GROWN_AT = 2
+FINAL_AT = 3
+
 COMMON_PLANTS = ["🌷", "🌸", "🌼", "🌻", "🪴"]
 RARE_PLANTS = ["🌺", "🌹", "🌵", "🍀", "🪷"]
 
