@@ -20,6 +20,7 @@ ctk.set_default_color_theme("green")
 
 app = ctk.CTk()
 app.title("Task Pet Plant")
+app.attributes("-topmost", True)
 app.geometry("500x650")
 
 
